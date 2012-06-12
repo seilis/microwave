@@ -17,6 +17,9 @@
 # along with MicrowaveEngineering.  If not, see 
 # <http://www.gnu.org/licenses/>.
 ############################################################################
+import numpy
+
+
 class vna:
 	def read_data(fn):
 		data_raw = []
@@ -96,3 +99,16 @@ class vna:
 		return np.transpose(data_cpx)
 
 # TODO: HFSS class coming soon!
+
+class DataSet:
+	def __init__(self,fn=''):
+		if (fn==''):
+			self.frequency = numpy.array([])
+			self.data = numpy.array([])
+			self.dataType = 'None'
+		else:
+			dat = vna.read_data(fn)
+			self.frequency = dat[:,0].real
+			self.data = dat[:,1:]
+			self.dataType = 'Sparameter'
+
