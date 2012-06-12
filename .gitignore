@@ -1,0 +1,8 @@
+# Compiled Distribution
+build/
+dist/
+MANIFEST
+
+
+# Python Compiled objects
+*.pyc
