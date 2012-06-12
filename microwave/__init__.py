@@ -18,7 +18,7 @@
 # <http://www.gnu.org/licenses/>.
 ############################################################################
 
-# List of function imports
-from vna import vna
-import math
+# List of imports
+from data import vna
+import network
 

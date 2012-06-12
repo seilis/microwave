@@ -94,3 +94,5 @@ class vna:
 		
 		# Output final data array as a numpy array (transpose to row-major format)
 		return np.transpose(data_cpx)
+
+# TODO: HFSS class coming soon!

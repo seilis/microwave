@@ -20,7 +20,7 @@
 
 # Converts a dataset to dB from real/imaginary
 # Assumes first column is Frequency
-def re_im_to_dB(Dat):
+def reim_to_dB(Dat):
 	lx = 2*(len(Dat[0])-1)+1
 	ly = len(Dat)
 	print(lx)
@@ -35,9 +35,11 @@ def re_im_to_dB(Dat):
 	
 	return dbDat
 
+#def dB_to_reim(Dat):
+#	raise NotImplementedError
 
 # Convert a S-parameters array into a Z-parameters array
-def S_to_Z(S,Z0=50.):
+def S_to_Z(S,Z0=50.0):
 	# P is the number of frequency points
 	# M is the matrix component length
 	if S.ndim == 1:
@@ -72,7 +74,7 @@ def S_to_Z(S,Z0=50.):
 #def S_to_Y(S,Y0=0.02):
 #def S_to_ABCD():
 
-def Z_to_S(Z,Z0=50.):
+def Z_to_S(Z,Z0=50.0):
 	# P is the number of frequency points
 	# M is the matrix component length
 	(P,M) = Z.shape
@@ -98,7 +100,7 @@ def Z_to_S(Z,Z0=50.):
 	return np.array(S)
 
 # Convert S parameters to ABCD parameters. Default assumes Z0=50 ohms.
-def S_to_ABCD(dat,Z0=50):
+def S_to_ABCD(dat,Z0=50.0):
 	A = []
 	B = []
 	C = []
@@ -177,4 +179,3 @@ def Y_to_Z(Y):
 		Z.extend([np.reshape(Ztmp,M)])
 	
 	return np.array(Z)
-
