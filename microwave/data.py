@@ -18,9 +18,15 @@
 # <http://www.gnu.org/licenses/>.
 ############################################################################
 import numpy
-
+import csv
+import re
+import numpy as np
+import cmath
+import math
+from math import pi
 
 class vna:
+	@staticmethod
 	def read_data(fn):
 		data_raw = []
 		file_read = csv.reader(open(fn),delimiter=',')
@@ -49,7 +55,7 @@ class vna:
 					else:
 						Complement = 'DEG'
 					data_format[Name_Match.group(1)]=(Name_Match.group(2),format_line.index(col),format_line.index(Name_Match.group(1)+'('+Complement+')'))
-		
+	
 		# Read first line of data
 		cur_line = file_read.next()
 		
@@ -78,12 +84,12 @@ class vna:
 			if form == 'DB':
 				# Convert to Re/Im
 				for line in data_raw:
-					col_dat.extend([complex(rect(10**(float(line[col1]))/20,
-						float(line[col2])/180*pi))])
+					col_dat.extend([complex(cmath.rect(10**(float(line[col1])/20.0),
+						float(line[col2])/180*math.pi))])
 			elif form == 'MAG':
 				# Convert to Re/Im
 				for line in data_raw:
-					col_dat.extend([complex(rect(float(line[col1]),float(line[col2]/180*pi)))])
+					col_dat.extend([complex(cmath.rect(float(line[col1]),float(line[col2]/180*math.pi)))])
 			else: # Already in components, but should be combined to Re+j*Im
 				# Convert to Re/Im
 				for line in data_raw:
@@ -112,3 +118,9 @@ class DataSet:
 			self.data = dat[:,1:]
 			self.dataType = 'Sparameter'
 
+############################################################################
+# Some generic useful functions
+def cpxInterp(x_new,x_orig,y_orig):
+	y_new_real = np.interp(x_new,x_orig,y_orig.real)
+	y_new_imag = np.interp(x_new,x_orig,y_orig.imag)
+	return y_new_real+1.0j*y_new_imag

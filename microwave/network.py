@@ -17,6 +17,8 @@
 # along with MicrowaveEngineering.  If not, see 
 # <http://www.gnu.org/licenses/>.
 ############################################################################
+import numpy as np
+from numpy import sqrt,log10
 
 # Converts a dataset to dB from real/imaginary
 # Assumes first column is Frequency
@@ -179,3 +181,14 @@ def Y_to_Z(Y):
 		Z.extend([np.reshape(Ztmp,M)])
 	
 	return np.array(Z)
+
+# This function subtracts in parallel
+def subtract_Z_parallel(dat,sub):
+	dat_Y = 1.0/dat
+	sub_Y = 1.0/sub
+
+#	Perform subtraction
+	res_Y = dat_Y - sub_Y
+	res = 1.0/res_Y
+
+	return res
