@@ -23,3 +23,4 @@ from data import vna
 from data import cpxInterp
 import network
 import components
+import hfss
