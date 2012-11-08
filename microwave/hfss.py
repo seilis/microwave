@@ -56,7 +56,6 @@ def readCSV(fn): # fn = file name
 					pass
 		if (newCol != []):
 			data.extend([newCol])
-	print(type(data))
 	return np.array(data)
 
 
