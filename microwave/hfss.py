@@ -1,4 +1,22 @@
-#! /usr/bin/python2
+############################################################################
+# Copyright 2012 Aaron Seilis
+#
+# This file is part of MicrowaveEngineering.
+#
+# MicrowaveEngineering is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# MicrowaveEngineering is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with MicrowaveEngineering.  If not, see 
+# <http://www.gnu.org/licenses/>.
+############################################################################
 import csv
 import numpy as np
 import matplotlib.pyplot as plt
@@ -27,11 +45,18 @@ def readCSV(fn): # fn = file name
 			try:
 				newCol.extend([float(col)])
 			except:
-				#newCol.extend([col])
-				pass
+				# Sometimes data from HFSS has blanks. These are caused by errors in
+				# the simulation that results in incomplete data sets. It is still
+				# useful to import these pieces of data, but they are not imported
+				# correctly by the "try" statement. The correct behaviour is to test
+				# if an empty cell is found and then represent it as not-a-number.
+				if (col == ""):
+					newCol.extend([float('nan')])
+				else:
+					pass
 		if (newCol != []):
 			data.extend([newCol])
-
+	print(type(data))
 	return np.array(data)
 
 
