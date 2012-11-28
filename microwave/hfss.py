@@ -1,4 +1,3 @@
-#! /usr/bin/python2
 import csv
 import numpy as np
 import matplotlib.pyplot as plt
@@ -25,7 +24,10 @@ def readCSV(fn): # fn = file name
 		newCol = []
 		for col in row:
 			try:
-				newCol.extend([float(col)])
+				if (col == ""):
+					newCol.extend([0.0])
+				else:
+					newCol.extend([float(col)])
 			except:
 				#newCol.extend([col])
 				pass

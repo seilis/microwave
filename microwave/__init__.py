@@ -21,6 +21,7 @@
 # List of imports
 from data import vna
 from data import cpxInterp
+from data import smooth
 import network
 import components
 import hfss
