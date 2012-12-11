@@ -43,7 +43,10 @@ def readCSV(fn): # fn = file name
 		newCol = []
 		for col in row:
 			try:
-				newCol.extend([float(col)])
+				if (col == ""):
+					newCol.extend([0.0])
+				else:
+					newCol.extend([float(col)])
 			except:
 				# Sometimes data from HFSS has blanks. These are caused by errors in
 				# the simulation that results in incomplete data sets. It is still

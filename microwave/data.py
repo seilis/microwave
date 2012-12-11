@@ -124,3 +124,23 @@ def cpxInterp(x_new,x_orig,y_orig):
 	y_new_real = np.interp(x_new,x_orig,y_orig.real)
 	y_new_imag = np.interp(x_new,x_orig,y_orig.imag)
 	return y_new_real+1.0j*y_new_imag
+
+# Smoothing function
+# Note: following example taken from http://www.scipy.org/Cookbook/SignalSmooth
+# and http://glowingpython.blogspot.ca/2012/02/convolution-with-numpy.html
+def smooth(data,window):
+	# Extend the data array
+	data_extended = np.r_[data[window-1:0:-1],data,data[-1:-window:-1]]
+
+	# Create a kaiser smoother function. The magic number 2 is the weighting of
+	# the kaiser function
+	kaiser = np.kaiser(window,2)
+	
+	# Apply the convolution
+	smoothed = np.convolve(kaiser/kaiser.sum(),data_extended,mode='valid')
+	
+	# Find the number valid for
+	num_valid = np.floor(window/2)
+
+	return smoothed[num_valid:len(smoothed)-num_valid]
+	
