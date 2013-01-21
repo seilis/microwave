@@ -79,7 +79,14 @@ def S_to_Z(S,Z0=50.0):
 def Z_to_S(Z,Z0=50.0):
 	# P is the number of frequency points
 	# M is the matrix component length
-	(P,M) = Z.shape
+	if Z.ndim == 1:
+		P = Z.shape
+		M = 1
+	elif Z.ndim == 2:
+		(P,M) = Z.shape
+	else:
+		raise ValueError('You can only have 1 or 2-dimensional arrays for this function.')
+
 
 	# Calculate the linear dimension of the matrix
 	Mlin = int(sqrt(M).real)
