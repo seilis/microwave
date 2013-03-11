@@ -32,7 +32,9 @@ class vna:
 		file_read = csv.reader(open(fn),delimiter=',')
 	
 		# This part will do something more useful in the future 
-		# (such as reading in information about the dataset
+		# (such as reading in information about the dataset.
+		# Right now, this skips lines in the file until it reaches a line that reads
+		# "BEGIN CH1_DATA".
 		header = True
 		while header:
 			line = file_read.next()
@@ -54,7 +56,12 @@ class vna:
 						Complement = 'IMAG'
 					else:
 						Complement = 'DEG'
-					data_format[Name_Match.group(1)]=(Name_Match.group(2),format_line.index(col),format_line.index(Name_Match.group(1)+'('+Complement+')'))
+					data_format[Name_Match.group(1)]=
+						(
+							Name_Match.group(2),
+							format_line.index(col),
+							format_line.index(Name_Match.group(1)+'('+Complement+')')
+						)
 	
 		# Read first line of data
 		cur_line = file_read.next()
