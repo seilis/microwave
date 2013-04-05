@@ -56,7 +56,7 @@ class vna:
 						Complement = 'IMAG'
 					else:
 						Complement = 'DEG'
-					data_format[Name_Match.group(1)]=
+					data_format[Name_Match.group(1)] = \
 						(
 							Name_Match.group(2),
 							format_line.index(col),
