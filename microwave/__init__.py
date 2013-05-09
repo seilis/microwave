@@ -1,5 +1,5 @@
 ############################################################################
-# Copyright 2012 Aaron Seilis
+# Copyright 2012-2013 Aaron Seilis
 #
 # This file is part of MicrowaveEngineering.
 #
@@ -19,10 +19,24 @@
 ############################################################################
 
 # List of imports
+
+# VNA class, just reads data at the moment.
 from data import vna
+
+# Interpolation function for complex numbers.
 from data import cpxInterp
+
+# Simple smoothing function for data clean-up.
 from data import smooth
+
+# Network analysis functions.
 import network
+
+# Component-specific functions.
 import components
+
+# Support for reading data from HFSS.
 import hfss
+
+# Support for creating Smith charts.
 import smith

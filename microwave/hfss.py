@@ -1,5 +1,5 @@
 ############################################################################
-# Copyright 2012 Aaron Seilis
+# Copyright 2012-2013 Aaron Seilis
 #
 # This file is part of MicrowaveEngineering.
 #
@@ -23,22 +23,18 @@ import matplotlib.pyplot as plt
 import re
 from math import log
 
-# DataSet TODO = finish this.
-# This class is designed to hold an entire dataset for easy manipulation
-class DataSet:
-	def __init__(self):
-		self.axis = []
-		self.data = np.array([])
-	
-	def add(self,dat):
-		self.axis = [fixString(dat[0,0]),fixString(dat[0,1])]
-		self.data = dat[1:,:]
-
-# importCSV
+# readCSV
 # This function imports CSV files that have been written by HFSS.
 def readCSV(fn): # fn = file name
+	# Open reader instance
 	fread = csv.reader(open(fn),delimiter=',')
+
+	# Initialize the data set in this scope.
 	data = []
+	
+	# Read every row and split the columns into an array.
+	# Once a row has been split into columns, append to the "data"
+	# array.
 	for row in fread:
 		newCol = []
 		for col in row:
@@ -57,18 +53,26 @@ def readCSV(fn): # fn = file name
 					newCol.extend([float('nan')])
 				else:
 					pass
+		# Ignore lines which are completely empty.
 		if (newCol != []):
 			data.extend([newCol])
+	# Return the data array as a NumPy ndArray.
 	return np.array(data)
 
-
+# This function is a helper function to change the variable names and titles
+# from the canonical form in HFSS to something prettier.
 def fixString(s):
-	s = re.sub('_',' ',s) # Change underscores to spaces
-	s = re.sub('\[\]','',s) # Empty units are removed
-	s = s.strip() # Remove extra whitespace
+	# Change underscores to spaces
+	s = re.sub('_',' ',s)	
+	
+	# Remove empty unit indicators are removed
+	s = re.sub('\[\]','',s)
+
+	# Remove extra whitespace
+	s = s.strip()
 	return s
 
-# Number of valid data values
+# Calculates the number of valid data values
 def numValid(A):
 	Valid = 0 # number of valid entries
 	for i in A:
@@ -86,33 +90,55 @@ def getValid(A):
 # This function takes an array that has redundant columns that contain
 # non-contradictory data and merges the redundant columns. It does this by
 # finding the unique column names and then creating a mapping between the
-# column name and the redundant column numbers. For each 
+# column name and the redundant column numbers.
+# 
+# This function is very useful for processing arrays from HFSS simulations
+# that contain multiple frequency ranges in the same simulation. HFSS outputs
+# the information in different columns and it is typically useful to merge
+# these columns into a single column when the frequency ranges don't overlap.
 def collapseArray(A):
+	# Initialize the collapsed array.
 	Out = []
+
 	# Find Unique Columns
 	Cols = []
 	for val in set(A[0,:]):
 		Cols.extend([str(val)])
 	Out.extend([Cols])
-	# Find Mappings
-	Map = {}	# Create values
-	for val in Cols: # For each column name
-		mapping = [] # create a mapping list
-		for i in range(len(A[0,:])): # for each column in A
-			if (A[0,i] == val): # If the top row is the current unique value
-				mapping.extend([i]) # add the column number to the map.
-		Map[val]=mapping # store the complete mapping in the dictionary
+
+	# The map dictionary maps the column name to the column number.
+	Map = {}
+	
+	# For each column name
+	for val in Cols:
+		# create a mapping list
+		mapping = []
+		for i in range(len(A[0,:])): 
+			# If the top row is the current unique value
+			# add the column number to the map.
+			if (A[0,i] == val):
+				mapping.extend([i])
+		# store the complete mapping in the dictionary
+		Map[val]=mapping
 	
 	# Copy correct values from A to Out
 	for row in range(1,len(A[:,0])): # for each row in the input vector
 		newRow = []
-		for col in Cols:	# for each unique column
-			data = [] # Create temp data vector
-			for d in Map[col]: # copy data in to data vector
+		# for each unique column
+		for col in Cols:
+			# Create temp data vector
+			data = []
+			
+			# copy data in to data vector
+			for d in Map[col]:
 				data.extend([A[row,d]])
+
+			# Debugging print statement.
 			#print(str(data))	
+			
+			# Copy the condensed data to the new row.
 			newRow.extend([getValid(data)])
+		# Save the condensed row to the output array.
 		Out.extend([newRow])
-	
+	# Return the condensed array as a NumPy array.
 	return np.array(Out)
-################################################################################

@@ -3,3 +3,13 @@ Microwave Engineering Python Module
 ===================================
 
 The Microwave Engineering Module provides functions for microwave analysis and engineering.
+
+The current version is v0.2, which is the first release version.
+
+============
+Installation
+============
+This package relies on Python Distutils to provide a simple installation framework.
+
+The following command (as root) should correctly install the Microwave Engineering module:
+	python setup.py install
