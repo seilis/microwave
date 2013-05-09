@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
 	name='Microwave',
-	version='0.1',
+	version='0.2',
 	author='Aaron Seilis',
 	author_email='aaron.seilis@gmail.com',
 	packages=['microwave'],
