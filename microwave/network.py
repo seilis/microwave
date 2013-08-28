@@ -1,5 +1,5 @@
 ############################################################################
-# Copyright 2012 Aaron Seilis
+# Copyright 2012-2013 Aaron Seilis
 #
 # This file is part of MicrowaveEngineering.
 #
@@ -22,6 +22,8 @@ from numpy import sqrt,log10
 
 # Converts a dataset to dB from real/imaginary
 # Assumes first column is Frequency
+# TODO: Change to remove frequency from input data. This will likely require
+# changing the VNA read_CSV function.
 def reim_to_dB(Dat):
 	lx = 2*(len(Dat[0])-1)+1
 	ly = len(Dat)
@@ -37,6 +39,7 @@ def reim_to_dB(Dat):
 	
 	return dbDat
 
+# TODO: Finish this.
 #def dB_to_reim(Dat):
 #	raise NotImplementedError
 
@@ -74,7 +77,6 @@ def S_to_Z(S,Z0=50.0):
 
 
 #def S_to_Y(S,Y0=0.02):
-#def S_to_ABCD():
 
 def Z_to_S(Z,Z0=50.0):
 	# P is the number of frequency points
@@ -110,22 +112,56 @@ def Z_to_S(Z,Z0=50.0):
 
 # Convert S parameters to ABCD parameters. Default assumes Z0=50 ohms.
 def S_to_ABCD(dat,Z0=50.0):
+	# Initialize A,B,C,D lists.
 	A = []
 	B = []
 	C = []
 	D = []
+	# For each row calculate A, B, C, D.
 	for i in dat:
+		# S-matrix names look nicer than indices.
 		S11 = i[0]
 		S12 = i[1]
 		S21 = i[2]
 		S22 = i[3]
+
+		# Calculate A, B, C, D using formulas from Pozar p. 187.
 		A.extend([((1+S11)*(1-S22)+S12*S21)/(2*S21)])
 		B.extend([Z0*((1+S11)*(1+S22)-S12*S21)/(2*S21)])
 		C.extend([((1-S11)*(1-S22)-S12*S21)/(Z0*2*S21)])
 		D.extend([((1-S11)*(1+S22)+S12*S21)/(2*S21)])
-	
+
+	# Condense into ABCD parameter list.	
 	abcd = np.transpose(np.array([A,B,C,D]))
 	return abcd
+
+# Convert ABCD parameters to S-parameters, default assumes Z0=50 ohms.
+def ABCD_to_S(dat,Z0=50.0):
+	# Initialize S-parameter lists.
+	S11 = []
+	S12 = []
+	S21 = []
+	S22 = []
+	# For each row calculate S-parameters.
+	for i in dat:
+		# ABCD names look nicer than indices.
+		A = i[0]
+		B = i[1]
+		C = i[2]
+		D = i[3]
+	
+		# Calculate denominator once, it is the same for all.
+		denom = A+B/Z0+C*Z0+D
+
+		# Calculate S-parameters using formulas from Pozar P. 187.
+		S11.extend([(A+B/Z0-C*Z0-D)/denom])
+		S12.extend([2*(A*D-B*C)/denom])
+		S21.extend([2/denom])
+		S22.extend([(-A+B/Z0-C*Z0+D)/denom])
+
+	# Condense into S-parameter list
+	S = np.transpose(np.array([S11,S12,S21,S22]))
+	return S
 
 # This function converts from Z parameters to Y parameters
 def Z_to_Y(Z):
@@ -189,13 +225,45 @@ def Y_to_Z(Y):
 	
 	return np.array(Z)
 
-# This function subtracts in parallel
+# Cascades two 2-port networks using the ABCD matrix multiplication
+# method of cascading networks. The output is the resulting ABCD
+# array of the total network.
+def cascade_ABCD(ABCD1,ABCD2):
+	# Initialize the output list.
+	Output = []
+
+	Num = len(ABCD1)
+
+	# For each frequency point, convert the input data into
+	# the equivalent matrices and perform matrix multiplication.
+	for i in range(Num):
+		# Convert to 2x2 matrices.
+		dev1 = np.reshape(ABCD1[i],(2,2))
+		dev2 = np.reshape(ABCD2[i],(2,2))
+		
+		# Calculate the matrix dot (inner) product.
+		total = np.dot(dev1,dev2)
+
+		# Reshape the calculated ABCD matrix into a list
+		# and append to the output.
+		Output.extend([np.reshape(total,4)])
+
+	# Return the output as a NumPy array.
+	return np.array(Output)
+		
+
+# Subtract two impedances that are in parallel. This is useful for
+# component value extraction. The output is the value of "sub" subtracted
+# from "dat" following the impedance rules for parallel components.
 def subtract_Z_parallel(dat,sub):
+	# Convert impedance values to admittance to simplify math.
 	dat_Y = 1.0/dat
 	sub_Y = 1.0/sub
 
-#	Perform subtraction
+	# Perform admittance subtraction.
 	res_Y = dat_Y - sub_Y
+
+	# Convert result to impedance
 	res = 1.0/res_Y
 
 	return res

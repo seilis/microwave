@@ -1,5 +1,5 @@
 ############################################################################
-# Copyright 2012 Aaron Seilis
+# Copyright 2012-2013 Aaron Seilis
 #
 # This file is part of MicrowaveEngineering.
 #
@@ -25,36 +25,57 @@ import cmath
 import math
 from math import pi
 
+# Class for working with data output from an Agilent VNA.
 class vna:
+
+	# Read a CSV saved by the VNA.
 	@staticmethod
 	def read_data(fn):
 		data_raw = []
 		file_read = csv.reader(open(fn),delimiter=',')
 	
 		# This part will do something more useful in the future 
-		# (such as reading in information about the dataset
+		# (such as reading in information about the dataset).
+		# Right now, this skips lines in the file until it reaches a line that reads
+		# "BEGIN CH1_DATA". This is the line immediately before the actual data
+		# begins.
 		header = True
 		while header:
 			line = file_read.next()
 			if line == ['BEGIN CH1_DATA']:
 				header = False
 		
-		# This line contains the format for the data. This is used 
-		# to determine which processing should be done on
+		# The line after "BEGIN CH1_DATA" contains the format for the data.
+		# This is used to determine which processing should be done on
 		# the data before output.
 		format_line = file_read.next()
 	
+		# Create the data format dictionary. This dictionary stores the columns
+		# and the format of those columns.
+		# Format:
+		#   key => (Complement column type, column number, complement column number)
 		data_format = {}
 		for col in format_line:
+			# Split the format line into colums and formats.
 			Name_Match = re.match('(S[0-9]+)\((\w+)\)',col)
 		
+			# Agilent VNAs store complex data as pairs of columns
+			# which are one of "dB-degrees", "Magnitude-degrees" or
+			# "Real-Imaginary". This processes the first data column
+			# and determines the complement, column number and
+			# column number of the complement data. 
 			if Name_Match:
 				if Name_Match.group(2) in ['DB','MAG','REAL']:
 					if Name_Match.group(2) == 'REAL':
 						Complement = 'IMAG'
 					else:
 						Complement = 'DEG'
-					data_format[Name_Match.group(1)]=(Name_Match.group(2),format_line.index(col),format_line.index(Name_Match.group(1)+'('+Complement+')'))
+					data_format[Name_Match.group(1)] = \
+						(
+							Name_Match.group(2),
+							format_line.index(col),
+							format_line.index(Name_Match.group(1)+'('+Complement+')')
+						)
 	
 		# Read first line of data
 		cur_line = file_read.next()
@@ -104,29 +125,21 @@ class vna:
 		# Output final data array as a numpy array (transpose to row-major format)
 		return np.transpose(data_cpx)
 
-# TODO: HFSS class coming soon!
-
-class DataSet:
-	def __init__(self,fn=''):
-		if (fn==''):
-			self.frequency = numpy.array([])
-			self.data = numpy.array([])
-			self.dataType = 'None'
-		else:
-			dat = vna.read_data(fn)
-			self.frequency = dat[:,0].real
-			self.data = dat[:,1:]
-			self.dataType = 'Sparameter'
 
 ############################################################################
-# Some generic useful functions
+# Some utility functions for working with data.
+
+# Interpolate complex data to a new set of measurement points
+# by interpolating the real and imaginary parts separately. Uses a linear
+# interpolation. The np.interp() function will attempt to extrapolate values 
+# that lie outside of the original data range.
 def cpxInterp(x_new,x_orig,y_orig):
 	y_new_real = np.interp(x_new,x_orig,y_orig.real)
 	y_new_imag = np.interp(x_new,x_orig,y_orig.imag)
 	return y_new_real+1.0j*y_new_imag
 
 # Smoothing function
-# Note: following example taken from http://www.scipy.org/Cookbook/SignalSmooth
+# Note: following example adapted from http://www.scipy.org/Cookbook/SignalSmooth
 # and http://glowingpython.blogspot.ca/2012/02/convolution-with-numpy.html
 def smooth(data,window):
 	# Extend the data array
