@@ -31,6 +31,8 @@ def create_smith():
 
 	# Add a single plot to the figure
 	ax = fig.add_subplot(1,1,1,aspect='equal')
+#	fig.add_axes([0.05, 0.05, 1.1, 1.1])
+#	ax = fig.axes[0]
 	
 	# Remove the figure boundaries
 	ax.get_xaxis().set_visible(False)
@@ -42,16 +44,23 @@ def create_smith():
 	ax.spines['right'].set_visible(False)
 
 	# Add Smith-chart impedance circles
-	Circ_zero = plt.Circle((0,0),radius=1.0,linestyle='solid',linewidth=2,color='black',fill=False)
-	Circ_unity = plt.Circle((0.5,0),radius=0.5,linestyle='solid',linewidth=1,color='grey',fill=False)
-	Circ_imag_low = Arc((1,-1),2,2,angle=0.0,theta1=90.0,theta2=180.0,linestyle='solid',linewidth=1,color='grey',fill=False)
-	Circ_imag_high = Arc((1,1),2,2,angle=0.0,theta1=180.0,theta2=270.0,linestyle='solid',linewidth=1,color='grey',fill=False)
+	Circ_zero = plt.Circle((0,0),radius=1.0,linestyle='solid',
+									linewidth=2,color='black',fill=False)
+	Circ_unity = plt.Circle((0.5,0),radius=0.5,linestyle='solid',
+									linewidth=1,color='grey',fill=False)
+	Circ_imag_low = Arc((1,-1),2,2,angle=0.0,theta1=90.0,theta2=180.0,
+								linestyle='solid',linewidth=1,color='grey',fill=False)
+	Circ_imag_high = Arc((1,1),2,2,angle=0.0,theta1=180.0,theta2=270.0,
+								linestyle='solid',linewidth=1,color='grey',fill=False)
 
-	ax.axhline(0,xmin=-1,xmax=1,linestyle='solid',linewidth=1,color='grey')
+	Real_Line = Line2D((-1,1),(0,0),linestyle='solid',linewidth=1,color='grey')
+	#ax.axhline(0,xmin=-1,xmax=1,linestyle='solid',linewidth=1,color='grey')
+
 	ax.add_patch(Circ_imag_high)
 	ax.add_patch(Circ_imag_low)
 	ax.add_patch(Circ_unity)
 	ax.add_patch(Circ_zero)
+	ax.add_line(Real_Line)
 
 	return fig
 	
